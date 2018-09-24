@@ -212,7 +212,7 @@ class Waveform
 		//}
 
 		// Command text
-		$command = $cmdpath.' sox ' . escapeshellarg($this->filename) .
+		$command = $cmdpath.'sox ' . escapeshellarg($this->filename) .
 			' -c ' . $needChannels .
 			' -r ' . $needRate . ' -e floating-point -t raw -';
 
