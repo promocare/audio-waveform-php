@@ -199,6 +199,55 @@ class Waveform
 
 		return imagepng($img, $filename);
 	}
+	
+	public function getWaveformData($filename,$cmdpath)
+	{
+		// Calculating parameters
+		$needChannels = $this->getChannels() > 1 ? 2 : 1;
+		$samplesPerPixel = self::$samplesPerLine * self::$linesPerPixel;
+		$needRate = 1.0 * $width * $samplesPerPixel * $this->getSampleRate() / $this->getSamples();
+
+		//if ($needRate > 4000) {
+		//	$needRate = 4000;
+		//}
+
+		// Command text
+		$command = $cmdpath.' sox ' . escapeshellarg($this->filename) .
+			' -c ' . $needChannels .
+			' -r ' . $needRate . ' -e floating-point -t raw -';
+
+		//var_dump($command);
+
+		$outputs = [
+			1 => ['pipe', 'w'],  // stdout
+			2 => ['pipe', 'w'],  // stderr
+		];
+		$pipes = null;
+		$proc = proc_open($command, $outputs, $pipes);
+		if (!$proc) {
+			throw new \Exception('Failed to run sox command');
+		}
+
+		$lines1 = [];
+		$lines2 = [];
+		while ($chunk = fread($pipes[1], 4 * $needChannels * self::$samplesPerLine)) {
+			$data = unpack('f*', $chunk);
+			$channel1 = [];
+			$channel2 = [];
+			foreach ($data as $index => $sample) {
+				if ($needChannels === 2 && $index % 2 === 0) {
+					$channel2 []= $sample;
+				} else {
+					$channel1 []= $sample;
+				}
+			}
+			$lines1 []= min($channel1);
+			$lines1 []= max($channel1);
+			
+		}
+
+		return $lines1;
+	}
 
 	public static function rgbaToColor($img, $rgba)
 	{
