@@ -41,7 +41,7 @@ class Waveform
 	{
 		$out = null;
 		$ret = null;
-		exec('sox --i ' . escapeshellarg($this->filename) . ' 2>&1', $out, $ret);
+		exec('/usr/local/bin/sox --i ' . escapeshellarg($this->filename) . ' 2>&1', $out, $ret);
 		$str = implode('|', $out);
 		
 		$match = null;
@@ -113,7 +113,7 @@ class Waveform
 		//}
 
 		// Command text
-		$command = 'sox ' . escapeshellarg($this->filename) .
+		$command = '/usr/local/bin/sox ' . escapeshellarg($this->filename) .
 			' -c ' . $needChannels .
 			' -r ' . $needRate . ' -e floating-point -t raw -';
 
@@ -205,11 +205,12 @@ class Waveform
 		// Calculating parameters
 		$needChannels = $this->getChannels() > 1 ? 2 : 1;
 		$samplesPerPixel = self::$samplesPerLine * self::$linesPerPixel;
-		$needRate = 1.0 * $width * $samplesPerPixel * $this->getSampleRate() / $this->getSamples();
+		$needRate = 1.0 * 1000 * $samplesPerPixel * $this->getSampleRate() / $this->getSamples();
 
 		//if ($needRate > 4000) {
 		//	$needRate = 4000;
 		//}
+		
 
 		// Command text
 		$command = $cmdpath.'sox ' . escapeshellarg($this->filename) .
